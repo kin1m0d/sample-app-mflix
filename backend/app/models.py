@@ -26,47 +26,47 @@ class PyObjectId(ObjectId):
         return ObjectId(v)
 
 class MovieModel(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id")
+    id: Optional[PyObjectId] = Field(default=None, alias="_id")
     title: str
-    year: Optional[int]
-    runtime: Optional[int]
-    plot: Optional[str]
-    genres: Optional[List[str]]
-    cast: Optional[List[str]]
-    directors: Optional[List[str]]
-    countries: Optional[List[str]]
-    poster: Optional[str]
-    imdb: Optional[Dict[str, Any]]
-    tomatoes: Optional[Dict[str, Any]]
+    year: Optional[int] = None
+    runtime: Optional[int] = None
+    plot: Optional[str] = None
+    genres: Optional[List[str]] = None
+    cast: Optional[List[str]] = None
+    directors: Optional[List[str]] = None
+    countries: Optional[List[str]] = None
+    poster: Optional[str] = None
+    imdb: Optional[Dict[str, Any]] = None
+    tomatoes: Optional[Dict[str, Any]] = None
     class Config:
         validate_by_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
 
 class CommentModel(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id")
+    id: Optional[PyObjectId] = Field(default=None, alias="_id")
     movie_id: PyObjectId
     text: str
-    date: Optional[str]
-    name: Optional[str]
-    email: Optional[EmailStr]
+    date: Optional[str] = None
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
     class Config:
         validate_by_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
 
 class UserModel(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id")
-    name: Optional[str]
+    id: Optional[PyObjectId] = Field(default=None, alias="_id")
+    name: Optional[str] = None
     email: EmailStr
-    password: Optional[str]
+    password: Optional[str] = None
     class Config:
         validate_by_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
 
 class TheaterModel(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id")
+    id: Optional[PyObjectId] = Field(default=None, alias="_id")
     theaterId: int
     location: Dict[str, Any]
     class Config:
@@ -75,7 +75,7 @@ class TheaterModel(BaseModel):
         json_encoders = {ObjectId: str}
 
 class EmbeddedMovieModel(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id")
+    id: Optional[PyObjectId] = Field(default=None, alias="_id")
     # Add fields as per sample document
     class Config:
         validate_by_name = True
@@ -83,7 +83,7 @@ class EmbeddedMovieModel(BaseModel):
         json_encoders = {ObjectId: str}
 
 class SessionModel(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id")
+    id: Optional[PyObjectId] = Field(default=None, alias="_id")
     user_id: PyObjectId
     jwt: str
     class Config:

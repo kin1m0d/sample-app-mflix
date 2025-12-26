@@ -2,12 +2,23 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-from app.routers import movies, comments, users, theaters, embedded_movies, sessions
+from app.routers import movies, comments, users, theaters, embedded_movies, sessions, test
+
 
 
 
 app = FastAPI()
+
+# CORS middleware
+app.add_middleware(
+	CORSMiddleware,
+	allow_origins=["*"],  # or specify your web app's origin
+	allow_credentials=True,
+	allow_methods=["*"],
+	allow_headers=["*"],
+)
 
 # MongoDB connection
 MONGODB_URI = os.getenv("MONGODB_URI")
@@ -36,3 +47,4 @@ app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(theaters.router, prefix="/theaters", tags=["theaters"])
 app.include_router(embedded_movies.router, prefix="/embedded_movies", tags=["embedded_movies"])
 app.include_router(sessions.router, prefix="/sessions", tags=["sessions"])
+app.include_router(test.router, tags=["test"])
