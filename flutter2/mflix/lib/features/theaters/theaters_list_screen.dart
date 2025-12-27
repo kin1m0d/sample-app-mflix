@@ -69,10 +69,10 @@ class _TheatersListScreenState extends State<TheatersListScreen> {
                   title: Text(theater['name']?.toString() ?? ''),
                   subtitle: Text(theater['location']?.toString() ?? ''),
                   onTap: () {
+                    print('[TheatersListScreen] Theater tapped: ' + theater.toString());
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => TheaterDetailScreen(
-                          theaterId: theater['_id']?.toString() ?? '',
                           theater: theater,
                         ),
                       ),
