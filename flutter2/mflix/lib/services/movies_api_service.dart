@@ -3,6 +3,31 @@ import 'package:http/http.dart' as http;
 import '../config.dart';
 
 class MoviesApiService {
+
+    static Future<List<Map<String, dynamic>>> fetchMoviesWithParams(Map<String, dynamic> params) async {
+      // Convert lists to repeated query params (e.g., genres=Drama&genres=Action)
+      final queryParams = <String, dynamic>{};
+      params.forEach((key, value) {
+        if (value is List) {
+          for (var v in value) {
+            queryParams.putIfAbsent(key, () => []).add(v);
+          }
+        } else if (value != null) {
+          queryParams[key] = value.toString();
+        }
+      });
+      final uri = Uri.parse('$_baseUrl/movies/').replace(queryParameters: queryParams);
+      print('[MoviesApiService] GET: ' + uri.toString());
+      final response = await http.get(uri);
+      print('[MoviesApiService] Status: ' + response.statusCode.toString());
+      print('[MoviesApiService] Body: ' + response.body);
+      if (response.statusCode == 200) {
+        final List data = json.decode(response.body);
+        return data.cast<Map<String, dynamic>>();
+      } else {
+        throw Exception('Failed to load movies: \\${response.statusCode} \\${response.body}');
+      }
+    }
   static String get _baseUrl => AppConfig.apiBaseUrl.endsWith('/')
       ? AppConfig.apiBaseUrl.substring(0, AppConfig.apiBaseUrl.length - 1)
       : AppConfig.apiBaseUrl;
