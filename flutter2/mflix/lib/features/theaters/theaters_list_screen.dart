@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/error_message.dart';
 import '../../services/theaters_api_service.dart';
-import 'theater_detail_screen.dart';
+import 'theaters_list_tab.dart';
+import 'theaters_map_tab.dart';
+
 
 enum TheatersListState { loading, error, loaded }
 
@@ -13,7 +15,7 @@ class TheatersListScreen extends StatefulWidget {
   State<TheatersListScreen> createState() => _TheatersListScreenState();
 }
 
-class _TheatersListScreenState extends State<TheatersListScreen> {
+class _TheatersListScreenState extends State<TheatersListScreen> with SingleTickerProviderStateMixin {
   TheatersListState _state = TheatersListState.loading;
   String? _errorMessage;
   List<Map<String, dynamic>> _theaters = [];
@@ -43,6 +45,8 @@ class _TheatersListScreenState extends State<TheatersListScreen> {
     }
   }
 
+  late final TabController _tabController = TabController(length: 2, vsync: this);
+
   @override
   Widget build(BuildContext context) {
     Widget content;
@@ -57,44 +61,29 @@ class _TheatersListScreenState extends State<TheatersListScreen> {
         );
         break;
       case TheatersListState.loaded:
-        content = RefreshIndicator(
-          onRefresh: _fetchTheaters,
-          child: ListView.builder(
-            itemCount: _theaters.length,
-            itemBuilder: (context, index) {
-              final theater = _theaters[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: ListTile(
-                  title: Text(theater['name']?.toString() ?? ''),
-                  subtitle: Text(theater['location']?.toString() ?? ''),
-                  onTap: () {
-                    print('[TheatersListScreen] Theater tapped: ' + theater.toString());
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => TheaterDetailScreen(
-                          theater: theater,
-                        ),
-                      ),
-                    );
-                  },
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () {},
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () {},
-                      ),
-                    ],
+        content = Column(
+          children: [
+            TabBar(
+              controller: _tabController,
+              tabs: const [
+                Tab(icon: Icon(Icons.list)),
+                Tab(icon: Icon(Icons.map)),
+              ],
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  // List tab
+                  RefreshIndicator(
+                    onRefresh: _fetchTheaters,
+                    child: TheatersListTab(theaters: _theaters),
                   ),
-                ),
-              );
-            },
-          ),
+                  TheatersMapTab(theaters: _theaters),
+                ],
+              ),
+            ),
+          ],
         );
         break;
     }
@@ -109,4 +98,6 @@ class _TheatersListScreenState extends State<TheatersListScreen> {
           : null,
     );
   }
+
+
 }
