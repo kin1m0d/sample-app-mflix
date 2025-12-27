@@ -11,14 +11,26 @@ async def get_db(request: Request) -> AsyncIOMotorDatabase:
     return request.app.state.db if hasattr(request.app.state, "db") else request.app.db
 
 @router.get("/", response_model=List[MovieModel], summary="List movies", description="List movies with optional filters.")
-async def list_movies(request: Request, title: Optional[str] = Query(None), year: Optional[int] = Query(None)):
+async def list_movies(
+    request: Request,
+    title: Optional[str] = Query(None),
+    year: Optional[int] = Query(None),
+    genres: Optional[List[str]] = Query(None),
+    directors: Optional[List[str]] = Query(None),
+    limit: int = Query(100, le=100)
+):
     query = {}
     if title:
-        query["title"] = title
+        query["title"] = {"$regex": title, "$options": "i"}
     if year:
         query["year"] = year
+    if genres:
+        query["genres"] = {"$in": genres}
+    if directors:
+        # Case-insensitive search for any director in the list
+        query["directors"] = {"$in": [{"$regex": d, "$options": "i"} for d in directors]}
     db = request.app.db
-    movies = await db.movies.find(query).to_list(100)
+    movies = await db.movies.find(query).to_list(limit)
     return movies
 
 @router.get("/{movie_id}", response_model=MovieModel, summary="Get movie by ID")
