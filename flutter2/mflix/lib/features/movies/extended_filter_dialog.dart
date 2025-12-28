@@ -1,36 +1,22 @@
 
+
 import 'package:flutter/material.dart';
+import 'movie_filter_state.dart';
+
 
 
 class ExtendedFilterDialog extends StatefulWidget {
-  final String search;
-  final List<String> genres;
-  final List<String> selectedGenres;
-  final int? selectedYear;
-  final List<int> years;
-  final double? minRating;
-  final List<String> languages;
-  final List<String> selectedLanguages;
-  final String? rated;
-  final List<String> ratedOptions;
+  final MovieFilterState filterState;
 
   const ExtendedFilterDialog({
     super.key,
-    required this.search,
-    required this.genres,
-    required this.selectedGenres,
-    required this.selectedYear,
-    required this.years,
-    required this.minRating,
-    required this.languages,
-    required this.selectedLanguages,
-    required this.rated,
-    required this.ratedOptions,
+    required this.filterState,
   });
 
   @override
   State<ExtendedFilterDialog> createState() => _ExtendedFilterDialogState();
 }
+
 
 class _ExtendedFilterDialogState extends State<ExtendedFilterDialog> {
   late TextEditingController _searchController;
@@ -44,24 +30,26 @@ class _ExtendedFilterDialogState extends State<ExtendedFilterDialog> {
   @override
   void initState() {
     super.initState();
-    _search = widget.search;
+    _search = widget.filterState.search;
     _searchController = TextEditingController(text: _search);
-    _selectedGenres = List<String>.from(widget.selectedGenres);
-    _selectedYear = widget.selectedYear;
-    _minRating = widget.minRating;
-    _selectedLanguages = List<String>.from(widget.selectedLanguages);
-    _rated = widget.rated;
+    _selectedGenres = List<String>.from(widget.filterState.selectedGenres);
+    _selectedYear = widget.filterState.selectedYear;
+    _minRating = widget.filterState.minRating;
+    _selectedLanguages = List<String>.from(widget.filterState.selectedLanguages);
+    _rated = widget.filterState.rated;
   }
 
   void _applyFilters() {
-    Navigator.of(context).pop({
-      'search': _searchController.text,
-      'selectedGenres': _selectedGenres,
-      'selectedYear': _selectedYear,
-      'minRating': _minRating,
-      'selectedLanguages': _selectedLanguages,
-      'rated': _rated,
-    });
+    Navigator.of(context).pop(
+      MovieFilterState(
+        search: _searchController.text,
+        selectedGenres: List<String>.from(_selectedGenres),
+        selectedYear: _selectedYear,
+        minRating: _minRating,
+        selectedLanguages: List<String>.from(_selectedLanguages),
+        rated: _rated,
+      ),
+    );
   }
 
   @override
@@ -91,7 +79,7 @@ class _ExtendedFilterDialogState extends State<ExtendedFilterDialog> {
               spacing: 8,
               runSpacing: 4,
               children: [
-                ...widget.genres.map((genre) => FilterChip(
+                ...widget.filterState.genres.map((genre) => FilterChip(
                   label: Text(genre),
                   selected: _selectedGenres.contains(genre),
                   onSelected: (selected) {
@@ -107,7 +95,7 @@ class _ExtendedFilterDialogState extends State<ExtendedFilterDialog> {
                 DropdownButton<int>(
                   value: _selectedYear,
                   hint: const Text('Year'),
-                  items: widget.years.map((y) => DropdownMenuItem(
+                  items: widget.filterState.years.map((y) => DropdownMenuItem(
                     value: y,
                     child: Text(y.toString()),
                   )).toList(),
@@ -144,7 +132,7 @@ class _ExtendedFilterDialogState extends State<ExtendedFilterDialog> {
                   },
                   onDeleted: _minRating != null ? () => setState(() => _minRating = null) : null,
                 ),
-                ...widget.languages.map((lang) => FilterChip(
+                ...widget.filterState.languages.map((lang) => FilterChip(
                   label: Text(lang),
                   selected: _selectedLanguages.contains(lang),
                   onSelected: (selected) {
@@ -160,7 +148,7 @@ class _ExtendedFilterDialogState extends State<ExtendedFilterDialog> {
                 DropdownButton<String>(
                   value: _rated,
                   hint: const Text('Rated'),
-                  items: widget.ratedOptions.map((r) => DropdownMenuItem(
+                  items: widget.filterState.ratedOptions.map((r) => DropdownMenuItem(
                     value: r,
                     child: Text(r),
                   )).toList(),

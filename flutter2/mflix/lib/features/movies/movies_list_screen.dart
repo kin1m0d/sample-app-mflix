@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/error_message.dart';
+
 import 'movie_card.dart';
 import 'movie_detail_screen.dart';
 import 'extended_filter_dialog.dart';
 import '../../services/movies_api_service.dart';
+import 'movie_filter_state.dart';
 
 enum MoviesListState { loading, error, loaded }
 
@@ -16,30 +18,17 @@ class MoviesListScreen extends StatefulWidget {
 }
 
 class _MoviesListScreenState extends State<MoviesListScreen> {
+  // Holds the current filter state
+  MovieFilterState _filterState = MovieFilterState();
+
   void _showExtendedFilters() async {
-    final result = await showDialog<Map<String, dynamic>>(
+    final result = await showDialog<MovieFilterState>(
       context: context,
-      builder: (ctx) => ExtendedFilterDialog(
-        search: _filterController.text,
-        genres: _allGenres,
-        selectedGenres: _selectedGenres,
-        selectedYear: _selectedYear,
-        years: _allYears,
-        minRating: _minRating,
-        languages: _allLanguages,
-        selectedLanguages: _selectedLanguages,
-        rated: _rated,
-        ratedOptions: _ratedOptions,
-      ),
+      builder: (ctx) => ExtendedFilterDialog(filterState: _filterState),
     );
     if (result != null) {
       setState(() {
-        _filterController.text = result['search'] ?? '';
-        _selectedGenres = List<String>.from(result['selectedGenres'] ?? []);
-        _selectedYear = result['selectedYear'];
-        _minRating = result['minRating'];
-        _selectedLanguages = List<String>.from(result['selectedLanguages'] ?? []);
-        _rated = result['rated'];
+        _filterState = result;
       });
       _fetchMovies();
     }
@@ -48,12 +37,7 @@ class _MoviesListScreenState extends State<MoviesListScreen> {
   String? _errorMessage;
   List<Map<String, dynamic>> _movies = [];
   final TextEditingController _filterController = TextEditingController();
-  // FilterBar state (minimal, for integration)
-  List<String> _selectedGenres = [];
-  int? _selectedYear;
-  double? _minRating;
-  List<String> _selectedLanguages = [];
-  String? _rated;
+  // FilterBar state is now encapsulated in _filterState
 
   @override
   void initState() {
@@ -69,21 +53,21 @@ class _MoviesListScreenState extends State<MoviesListScreen> {
     try {
       // Build query params based on filter state
       final Map<String, dynamic> params = {};
-      final search = _filterController.text.trim();
+      final search = _filterState.search.trim();
       if (search.isNotEmpty) {
         params['title'] = search;
       }
-      if (_selectedYear != null) {
-        params['year'] = _selectedYear;
+      if (_filterState.selectedYear != null) {
+        params['year'] = _filterState.selectedYear;
       }
-      if (_selectedGenres.isNotEmpty) {
-        params['genres'] = _selectedGenres;
+      if (_filterState.selectedGenres.isNotEmpty) {
+        params['genres'] = _filterState.selectedGenres;
       }
-      if (_selectedLanguages.isNotEmpty) {
-        params['languages'] = _selectedLanguages;
+      if (_filterState.selectedLanguages.isNotEmpty) {
+        params['languages'] = _filterState.selectedLanguages;
       }
-      if (_rated != null && _rated!.isNotEmpty) {
-        params['rated'] = _rated;
+      if (_filterState.rated != null && _filterState.rated!.isNotEmpty) {
+        params['rated'] = _filterState.rated;
       }
       // Note: Backend does not support minRating directly, would need to filter client-side or extend API
       final movies = await MoviesApiService.fetchMoviesWithParams(params);
