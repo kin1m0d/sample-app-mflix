@@ -2,7 +2,7 @@
 set -e
 
 # Activate virtual environment
-source "$(dirname "$0")/.venv/bin/activate"
+source .venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
