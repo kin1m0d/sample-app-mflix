@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+.env.*
+.git/
+.gitignore
+.DS_Store
+*.db
+*.sqlite3
+# Ignore test and cache files
+backend/app/__pycache__/
+backend/app/routers/__pycache__/
+backend/start.sh
